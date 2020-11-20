@@ -1,0 +1,107 @@
+			Output for Pass 1
+			Operation Table
+
+line number     address        label    op      operands        
+---------------------------------------------------------------
+1               000000         34998    START   0               
+                ***Invalid declaration of Label Field          
+2               000000                  EXTDEF  BUFFER,BUFEND,LENGTH
+3               000000                  EXTREF  RDREC,WRREC     
+4               000000         FIRST    STL     RETADR          
+5               000003         CLOOP   +JSUB    RDREC           
+6               000007                  LDA     LENGTH          
+7               00000A                  COMP    #0              
+8               00000D                  JET     ENDFIL          
+                ***Invalid opcode 1                            
+9               00000D                 +JSUB    WRREC           
+10              000011                  J       CLOOP           
+11              000014         ENDFIL   LDA     =C'EOF'         
+12              000017                  STA     BUFFER          
+13              00001A                  LDA     #3              
+14              00001D                  STA     LENGTH          
+15              000020                 +JSUB    WRREC           
+16              000024                  J       @RETADR         
+17              000027         RETADR   RESW    1               
+18              00002A         LENGTH   RESW    1               
+19              00002D                  LTORG                   
+20              00002D         *        =C'EOF'                 
+21              000030         BUFFER   RESB    4096            
+22              001030         BUFEND   EQU     *               
+23              001030         MAXLEN   EQU     BUFEND-BUFFER   
+
+---------------------------------------------------------------
+
+	Symbol Table
+
+---------------------------------
+	|name     address   Abs/Rel|
+	|--------------------------|
+	|BUFEND    1030         Rel|
+	|BUFFER    0030         Rel|
+	|CLOOP     0003         Rel|
+	|ENDFIL    0014         Rel|
+	|FIRST     0000         Rel|
+	|LENGTH    002A         Rel|
+	|MAXLEN    1000         Rel|
+	|RETADR    0027         Rel|
+---------------------------------
+                               .
+                               .       SUBROUTINE TO READ RECORD INTO BUFFER
+                               .
+24              000000                  EXTREF  BUFFER,LENGTH,BUFFEND
+25              000000                  CLEAR   X               
+26              000002                  CLEAR   A               
+27              000004                  CLEAR   S               
+28              000006                  LDT     MAXLEN          
+29              000009         RLOOP    TD      INPUT           
+30              00000C                  JEQ     RLOOP           
+31              00000F                  RD      INPUT           
+32              000012                  COMPR   AOATS           
+33              000014                  JEQ     EXIT            
+34              000017                  STCH    BUFFEROATX      
+                ***Using ExtRef with no +                      
+35              00001A                  TIXR    T               
+36              00001C                  JLT     RLOOP           
+37              00001F         EXIT    +STX     LENGTH          
+38              000023                  RSUB                    
+39              000026         INPUT    BYTE    X'5'            
+40              000027         MAXLEN   WORD    BUFEND-BUFFER   
+                               .....
+
+---------------------------------------------------------------
+
+	Symbol Table
+
+---------------------------------
+	|name     address   Abs/Rel|
+	|--------------------------|
+	|EXIT      001F         Rel|
+	|INPUT     0026         Rel|
+	|MAXLEN    0027         Rel|
+	|RLOOP     0009         Rel|
+---------------------------------
+                               .
+                               .       SUBROUTINE TO WRITE RECORD FROM BUFFER
+                               .
+41              000000                  EXTREF  LENGTH,BUFFER   
+42              000000                  CLEAR   X               
+43              000002                 +LDT     LENGTH          
+44              000006         WLOOP    TD      =X'05'          
+45              000009                  JEQ     WLOOP           
+46              00000C                 +LDCH    BUFFEROATX      
+47              000010                  WD      =X'05'          
+48              000013                  TIXR    T               
+49              000015                  JLT     WLOOP           
+50              000018                  RSUB                    
+51              00001B         *        =X'05'                  
+
+---------------------------------------------------------------
+
+	Symbol Table
+
+---------------------------------
+	|name     address   Abs/Rel|
+	|--------------------------|
+	|WLOOP     0006         Rel|
+---------------------------------
+                ***The program has no END clause               
